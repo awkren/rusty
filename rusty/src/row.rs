@@ -169,13 +169,13 @@ impl Row {
         None
     }
 
-    fn highlight_match(&mut self, word: Option<String>) {
+    fn highlight_match(&mut self, word: &Option<String>) {
         if let Some(word) = word {
             if word.is_empty() {
                 return;
             }
             let mut index = 0;
-            while let Some(search_match) = self.find(word, index, SearchDirection::Forward) {
+            while let Some(search_match) = self.find(&word, index, SearchDirection::Forward) {
                 if let Some(next_index) = search_match.checked_add(word[..].graphemes(true).count())
                 {
                     #[allow(clippy::indexing_slicing)]
@@ -459,7 +459,6 @@ impl Row {
         if in_ml_comment && &self.string[self.string.len().saturating_sub(2)..] != "*/" {
             return true;
         }
-        self.is_highlighted = true;
         false
     }
 }
