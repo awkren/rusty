@@ -222,6 +222,7 @@ impl Editor {
         let Position { x, y } = self.cursor_position;
         let width = self.terminal.size().width as usize;
         let height = self.terminal.size().height as usize;
+        #[allow(unused_mut)]
         let mut offset = &mut self.offset;
         if y < offset.y {
             offset.y = y;

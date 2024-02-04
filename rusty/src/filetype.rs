@@ -17,7 +17,7 @@ pub struct HighlightingOptions {
 impl Default for FileType {
     fn default() -> Self {
         Self {
-            name: String::from("No filetype"),
+            name: String::from("Filetype not detected!"),
             hl_opts: HighlightingOptions::default(),
         }
     }
