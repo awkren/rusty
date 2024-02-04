@@ -2,3 +2,4 @@ abc
 target/
 Cargo.lock
 src/test.js
+src/test.ts
