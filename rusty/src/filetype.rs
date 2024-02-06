@@ -514,7 +514,7 @@ impl FileType {
                     ],
                 },
             };
-        } else if file_name.ends_with(".cpp") {
+        } else if file_name.ends_with(".cpp") || file_name.ends_with(".h") {
             return Self {
                 name: String::from("C++"),
                 hl_opts: HighlightingOptions {
@@ -689,7 +689,7 @@ impl FileType {
             };
         } else if file_name.ends_with(".java") {
             return Self {
-                name: String::from("Language"),
+                name: String::from("Java"),
                 hl_opts: HighlightingOptions {
                     characters: true,
                     comments: true,
@@ -738,6 +738,7 @@ impl FileType {
                         "super".to_string(),
                         "switch".to_string(),
                         "synchronized".to_string(),
+                        "System".to_string(),
                         "this".to_string(),
                         "throw".to_string(),
                         "throws".to_string(),
