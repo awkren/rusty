@@ -111,7 +111,7 @@ impl FileType {
                     ],
                 },
             };
-        } else if file_name.ends_with(".js") {
+        } else if file_name.ends_with(".js") || file_name.ends_with(".jsx") {
             return Self {
                 name: String::from("JavaScript"),
                 hl_opts: HighlightingOptions {
@@ -182,7 +182,7 @@ impl FileType {
                     ],
                 },
             };
-        } else if file_name.ends_with(".ts") {
+        } else if file_name.ends_with(".ts") || file_name.ends_with(".tsx") {
             return Self {
                 name: String::from("TypeScript"),
                 hl_opts: HighlightingOptions {

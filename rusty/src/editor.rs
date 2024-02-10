@@ -48,6 +48,7 @@ pub struct Editor {
     status_message: StatusMessage,
     quit_times: u8,
     highlighted_word: Option<String>,
+    insert_mode: bool,
 }
 
 impl Editor {
@@ -89,6 +90,7 @@ impl Editor {
             status_message: StatusMessage::from(initial_status),
             quit_times: QUIT_TIMES,
             highlighted_word: None,
+            insert_mode: false,
         }
     }
 
@@ -176,6 +178,25 @@ impl Editor {
     fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
+            Key::Up if !self.insert_mode => self.move_cursor(Key::Up),
+            Key::Down if !self.insert_mode => self.move_cursor(Key::Down),
+            Key::Left if !self.insert_mode => self.move_cursor(Key::Left),
+            Key::Right if !self.insert_mode => self.move_cursor(Key::Right),
+            Key::Char('k') if !self.insert_mode => self.move_cursor(Key::Up),
+            Key::Char('j') if !self.insert_mode => self.move_cursor(Key::Down),
+            Key::Char('h') if !self.insert_mode => self.move_cursor(Key::Left),
+            Key::Char('l') if !self.insert_mode => self.move_cursor(Key::Right),
+
+            Key::Char('i') if !self.insert_mode => {
+                self.insert_mode = true;
+                self.status_message = StatusMessage::from("INSERT mode".to_string());
+            }
+
+            Key::Esc | Key::Ctrl('c') if self.insert_mode => {
+                self.insert_mode = false;
+                self.status_message = StatusMessage::from("NORMAL mode".to_string());
+            }
+
             Key::Ctrl('q') => {
                 if self.quit_times > 0 && self.document.is_dirty() {
                     self.status_message = StatusMessage::from(format!(
@@ -189,7 +210,11 @@ impl Editor {
             }
             Key::Ctrl('s') => self.save(),
             Key::Ctrl('f') => self.search(),
-            Key::Char(c) => {
+            // Key::Char(c) => {
+            //     self.document.insert(&self.cursor_position, c);
+            //     self.move_cursor(Key::Right);
+            // }
+            Key::Char(c) if self.insert_mode => {
                 self.document.insert(&self.cursor_position, c);
                 self.move_cursor(Key::Right);
             }
@@ -200,14 +225,8 @@ impl Editor {
                     self.document.delete(&self.cursor_position);
                 }
             }
-            Key::Up
-            | Key::Down
-            | Key::Left
-            | Key::Right
-            | Key::PageUp
-            | Key::PageDown
-            | Key::End
-            | Key::Home => self.move_cursor(pressed_key),
+
+            Key::PageUp | Key::PageDown | Key::End | Key::Home => self.move_cursor(pressed_key),
             _ => (),
         }
         self.scroll();
