@@ -142,7 +142,7 @@ impl Editor {
         let mut direction = SearchDirection::Forward;
         let query = self
             .prompt(
-                "Seach (ESC to cancel, Arrows to navigate): ",
+                "Search (ESC to cancel, Arrows to navigate): ",
                 |editor, key, query| {
                     let mut moved = false;
                     match key {
@@ -201,6 +201,13 @@ impl Editor {
                 self.move_cursor_to_next_word();
             }
 
+            // Key::Char('_') if self.insert_mode => {
+            //     self.move_cursor_to_beginning_of_line();
+            // }
+            //
+            // Key::Char('$') if self.insert_mode => {
+            //     self.move_cursor_to_end_of_line();
+            // }
             Key::Ctrl('q') => {
                 if self.quit_times > 0 && self.document.is_dirty() {
                     self.status_message = StatusMessage::from(format!(
@@ -218,10 +225,20 @@ impl Editor {
             //     self.document.insert(&self.cursor_position, c);
             //     self.move_cursor(Key::Right);
             // }
-            Key::Char(c) if self.insert_mode => {
-                self.document.insert(&self.cursor_position, c);
-                self.move_cursor(Key::Right);
-            }
+            Key::Char(c) if !self.insert_mode => match c {
+                '_' => self.move_cursor_to_beginning_of_line(),
+                '$' => self.move_cursor_to_end_of_line(),
+                _ => {
+                    if self.insert_mode {
+                        self.document.insert(&self.cursor_position, c);
+                        self.move_cursor(Key::Right);
+                    }
+                }
+            },
+            // Key::Char(c) if self.insert_mode => {
+            //     self.document.insert(&self.cursor_position, c);
+            //     self.move_cursor(Key::Right);
+            // }
             Key::Delete => self.document.delete(&self.cursor_position),
             Key::Char('x') if !self.insert_mode => self.document.delete(&self.cursor_position),
             Key::Backspace => {
@@ -262,6 +279,18 @@ impl Editor {
             offset.x = x;
         } else if x >= offset.x.saturating_add(width) {
             offset.x = x.saturating_sub(width).saturating_add(1);
+        }
+    }
+
+    fn handle_shift_key(&mut self, key: Key) {
+        if let Key::Char(c) = key {
+            if c.is_uppercase() {
+                match c {
+                    '_' => self.move_cursor_to_beginning_of_line(),
+                    '$' => self.move_cursor_to_end_of_line(),
+                    _ => (),
+                }
+            }
         }
     }
 
@@ -366,6 +395,19 @@ impl Editor {
         }
 
         self.cursor_position = Position { x, y };
+    }
+
+    fn move_cursor_to_beginning_of_line(&mut self) {
+        let y = self.cursor_position.y;
+        self.cursor_position.x = 0;
+        self.cursor_position.y = y;
+    }
+
+    fn move_cursor_to_end_of_line(&mut self) {
+        let y = self.cursor_position.y;
+        if let Some(row) = self.document.row(y) {
+            self.cursor_position.x = row.len();
+        }
     }
 
     fn draw_welcome_message(&self) {
