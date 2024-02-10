@@ -231,9 +231,12 @@ impl Editor {
                 }
             }
 
-            Key::PageUp | Key::Ctrl('u') | Key::PageDown | Key::End | Key::Home => {
-                self.move_cursor(pressed_key)
-            }
+            Key::PageUp
+            | Key::Ctrl('u')
+            | Key::Ctrl('d')
+            | Key::PageDown
+            | Key::End
+            | Key::Home => self.move_cursor(pressed_key),
             _ => (),
         }
         self.scroll();
@@ -313,6 +316,13 @@ impl Editor {
                 }
             }
             Key::PageDown => {
+                y = if y.saturating_add(terminal_height) < height {
+                    y.saturating_add(terminal_height)
+                } else {
+                    height
+                }
+            }
+            Key::Ctrl('d') => {
                 y = if y.saturating_add(terminal_height) < height {
                     y.saturating_add(terminal_height)
                 } else {
