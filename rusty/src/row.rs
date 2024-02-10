@@ -461,6 +461,10 @@ impl Row {
         }
         false
     }
+
+    pub fn chars(&self) -> impl Iterator<Item = char> + '_ {
+        self.string.chars()
+    }
 }
 
 fn is_separator(c: char) -> bool {

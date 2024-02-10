@@ -178,10 +178,10 @@ impl Editor {
     fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
-            Key::Up if !self.insert_mode => self.move_cursor(Key::Up),
-            Key::Down if !self.insert_mode => self.move_cursor(Key::Down),
-            Key::Left if !self.insert_mode => self.move_cursor(Key::Left),
-            Key::Right if !self.insert_mode => self.move_cursor(Key::Right),
+            Key::Up if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Up),
+            Key::Down if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Down),
+            Key::Left if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Left),
+            Key::Right if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Right),
             Key::Char('k') if !self.insert_mode => self.move_cursor(Key::Up),
             Key::Char('j') if !self.insert_mode => self.move_cursor(Key::Down),
             Key::Char('h') if !self.insert_mode => self.move_cursor(Key::Left),
@@ -195,6 +195,10 @@ impl Editor {
             Key::Esc | Key::Ctrl('c') if self.insert_mode => {
                 self.insert_mode = false;
                 self.status_message = StatusMessage::from("NORMAL mode".to_string());
+            }
+
+            Key::Char('w') if !self.insert_mode => {
+                self.move_cursor_to_next_word();
             }
 
             Key::Ctrl('q') => {
@@ -318,6 +322,30 @@ impl Editor {
             x = width;
         }
         self.cursor_position = Position { x, y }
+    }
+
+    fn move_cursor_to_next_word(&mut self) {
+        let height = self.document.len();
+        let mut x = self.cursor_position.x;
+        let mut y = self.cursor_position.y;
+
+        if let Some(row) = self.document.row(y) {
+            let row_len = row.len();
+            while x < row_len && !row.chars().nth(x).unwrap_or(' ').is_alphanumeric() {
+                x += 1;
+            }
+            // Skip the word itself
+            while x < row_len && row.chars().nth(x).unwrap_or(' ').is_alphanumeric() {
+                x += 1;
+            }
+        }
+
+        while x >= self.document.row(y).unwrap().len() && y < height {
+            x = 0;
+            y += 1;
+        }
+
+        self.cursor_position = Position { x, y };
     }
 
     fn draw_welcome_message(&self) {
