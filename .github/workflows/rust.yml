@@ -10,15 +10,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-  
+  build: 
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-      with:
-        path: rusty
     - name: Build
       run: |
-          cd rusty  # Navigate to the directory containing Cargo.toml
+          cd rusty
           cargo build --verbose
