@@ -231,7 +231,9 @@ impl Editor {
                 }
             }
 
-            Key::PageUp | Key::PageDown | Key::End | Key::Home => self.move_cursor(pressed_key),
+            Key::PageUp | Key::Ctrl('u') | Key::PageDown | Key::End | Key::Home => {
+                self.move_cursor(pressed_key)
+            }
             _ => (),
         }
         self.scroll();
@@ -297,6 +299,13 @@ impl Editor {
                 }
             }
             Key::PageUp => {
+                y = if y > terminal_height {
+                    y.saturating_sub(terminal_height)
+                } else {
+                    0
+                }
+            }
+            Key::Ctrl('u') => {
                 y = if y > terminal_height {
                     y.saturating_sub(terminal_height)
                 } else {
