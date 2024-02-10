@@ -201,6 +201,10 @@ impl Editor {
                 self.move_cursor_to_next_word();
             }
 
+            Key::Char('b') if !self.insert_mode => {
+                self.move_cursor_to_previous_word();
+            }
+
             // Key::Char('_') if self.insert_mode => {
             //     self.move_cursor_to_beginning_of_line();
             // }
@@ -279,18 +283,6 @@ impl Editor {
             offset.x = x;
         } else if x >= offset.x.saturating_add(width) {
             offset.x = x.saturating_sub(width).saturating_add(1);
-        }
-    }
-
-    fn handle_shift_key(&mut self, key: Key) {
-        if let Key::Char(c) = key {
-            if c.is_uppercase() {
-                match c {
-                    '_' => self.move_cursor_to_beginning_of_line(),
-                    '$' => self.move_cursor_to_end_of_line(),
-                    _ => (),
-                }
-            }
         }
     }
 
@@ -394,6 +386,33 @@ impl Editor {
             y += 1;
         }
 
+        self.cursor_position = Position { x, y };
+    }
+
+    fn move_cursor_to_previous_word(&mut self) {
+        let mut x = self.cursor_position.x;
+        let mut y = self.cursor_position.y;
+
+        // Check if cursor it at the beginning of the document
+        if x == 0 && y == 0 {
+            return;
+        }
+
+        if x == 0 {
+            y -= 1;
+            // if y < 0 {
+            //     y = 0;
+            // }
+            x = self.document.row(y).unwrap().len();
+        } else {
+            let row = self.document.row(y).unwrap();
+            while x > 0 && !row.chars().nth(x - 1).unwrap_or(' ').is_alphabetic() {
+                x -= 1;
+            }
+            while x > 0 && row.chars().nth(x - 1).unwrap_or(' ').is_alphabetic() {
+                x -= 1;
+            }
+        }
         self.cursor_position = Position { x, y };
     }
 
