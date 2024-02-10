@@ -205,13 +205,12 @@ impl Editor {
                 self.move_cursor_to_previous_word();
             }
 
-            // Key::Char('_') if self.insert_mode => {
-            //     self.move_cursor_to_beginning_of_line();
-            // }
-            //
-            // Key::Char('$') if self.insert_mode => {
-            //     self.move_cursor_to_end_of_line();
-            // }
+            Key::Char('_') if !self.insert_mode => {
+                self.move_cursor_to_beginning_of_line();
+            }
+            Key::Char('$') if !self.insert_mode => {
+                self.move_cursor_to_end_of_line();
+            }
             Key::Ctrl('q') => {
                 if self.quit_times > 0 && self.document.is_dirty() {
                     self.status_message = StatusMessage::from(format!(
@@ -225,24 +224,10 @@ impl Editor {
             }
             Key::Ctrl('s') => self.save(),
             Key::Ctrl('f') => self.search(),
-            // Key::Char(c) => {
-            //     self.document.insert(&self.cursor_position, c);
-            //     self.move_cursor(Key::Right);
-            // }
-            Key::Char(c) if !self.insert_mode => match c {
-                '_' => self.move_cursor_to_beginning_of_line(),
-                '$' => self.move_cursor_to_end_of_line(),
-                _ => {
-                    if self.insert_mode {
-                        self.document.insert(&self.cursor_position, c);
-                        self.move_cursor(Key::Right);
-                    }
-                }
-            },
-            // Key::Char(c) if self.insert_mode => {
-            //     self.document.insert(&self.cursor_position, c);
-            //     self.move_cursor(Key::Right);
-            // }
+            Key::Char(c) if self.insert_mode => {
+                self.document.insert(&self.cursor_position, c);
+                self.move_cursor(Key::Right);
+            }
             Key::Delete => self.document.delete(&self.cursor_position),
             Key::Char('x') if !self.insert_mode => self.document.delete(&self.cursor_position),
             Key::Backspace => {
@@ -251,7 +236,6 @@ impl Editor {
                     self.document.delete(&self.cursor_position);
                 }
             }
-
             Key::PageUp
             | Key::Ctrl('u')
             | Key::Ctrl('d')
