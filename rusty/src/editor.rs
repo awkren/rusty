@@ -178,10 +178,10 @@ impl Editor {
     fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
-            Key::Up if !self.insert_mode => self.move_cursor(Key::Up),
-            Key::Down if !self.insert_mode => self.move_cursor(Key::Down),
-            Key::Left if !self.insert_mode => self.move_cursor(Key::Left),
-            Key::Right if !self.insert_mode => self.move_cursor(Key::Right),
+            Key::Up if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Up),
+            Key::Down if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Down),
+            Key::Left if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Left),
+            Key::Right if self.insert_mode || !self.insert_mode => self.move_cursor(Key::Right),
             Key::Char('k') if !self.insert_mode => self.move_cursor(Key::Up),
             Key::Char('j') if !self.insert_mode => self.move_cursor(Key::Down),
             Key::Char('h') if !self.insert_mode => self.move_cursor(Key::Left),
