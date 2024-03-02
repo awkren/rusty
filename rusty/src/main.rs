@@ -7,6 +7,7 @@
     clippy::wildcard_enum_match_arm,
     clippy::else_if_without_else
 )]
+mod command;
 mod document;
 mod editor;
 mod filetype;

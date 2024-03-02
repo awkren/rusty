@@ -1,3 +1,4 @@
+use super::command;
 use crate::Document;
 use crate::Row;
 use crate::Terminal;
@@ -51,6 +52,7 @@ pub struct Editor {
     quit_times: u8,
     highlighted_word: Option<String>,
     insert_mode: bool,
+    pub commands: Vec<command::Command>,
 }
 
 impl Editor {
@@ -93,6 +95,7 @@ impl Editor {
             quit_times: QUIT_TIMES,
             highlighted_word: None,
             insert_mode: false,
+            commands: Vec::new(),
         }
     }
 
@@ -209,6 +212,19 @@ impl Editor {
 
             Key::Char('_') if !self.insert_mode => {
                 self.move_cursor_to_beginning_of_line();
+            }
+            Key::Char(':') => {
+                let command = self.prompt(":", |_, _, command| {})?;
+                let mut args = command.split_whitespace();
+                if let Some("bg") = args.next() {
+                    if let Some(color) = args.next() {
+                        self.change_status_bar_color(color);
+                    } else {
+                        self.status_message = StatusMessage::from("Usage: :bg [color]");
+                    }
+                } else {
+                    self.status_message = StatusMessage::from("Unknown command");
+                }
             }
             Key::Char('$') if !self.insert_mode => {
                 self.move_cursor_to_end_of_line();
@@ -545,6 +561,15 @@ impl Editor {
             return Ok(None);
         }
         Ok(Some(result))
+    }
+
+    pub fn change_status_bar_color(&mut self, color: &str) {
+        if let Ok(rgb) = color::Rgb::from_str(color) {
+            STATUS_BG_COLOR = rgb;
+            self.refresh_screen().unwrap();
+        } else {
+            self.status_message = StatusMessage::from(format!("Invalid color: {}", color));
+        }
     }
 }
 
