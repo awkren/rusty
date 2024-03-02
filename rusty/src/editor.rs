@@ -479,9 +479,9 @@ impl Editor {
             file_name.truncate(20);
         }
         status = format!(
-            "{} - {} lines{} \"{}\"",
+            "{} - {}\"{}\"",
             file_name,
-            self.document.len(),
+            // self.document.len(),
             modified_indicator,
             user_at_hostname,
         );
