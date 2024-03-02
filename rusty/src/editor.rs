@@ -1,9 +1,9 @@
 use crate::Document;
 use crate::Row;
 use crate::Terminal;
-use chrono::prelude::*;
 use chrono::Local;
 use std::env;
+use std::process::Command;
 use std::time::Duration;
 use std::time::Instant;
 use std::usize;
@@ -455,8 +455,17 @@ impl Editor {
 
     fn draw_status_bar(&self) {
         let now = Local::now();
-        let time = now.format("%H:%M:%S");
-        let date = now.format("%Y-%m-%d");
+        let time = now.format("%H:%M");
+        let date = now.format("%d-%b-%Y");
+        let output = Command::new("whoami")
+            .output()
+            .expect("Failed to execute process");
+        let username = String::from_utf8_lossy(&output.stdout);
+        let output = Command::new("hostname")
+            .output()
+            .expect("Failed to execute process");
+        let hostname = String::from_utf8_lossy(&output.stdout);
+        let user_at_hostname = format!("{}@{}", username.trim(), hostname.trim());
         let mut status;
         let width = self.terminal.size().width as usize;
         let modified_indicator = if self.document.is_dirty() {
@@ -470,15 +479,16 @@ impl Editor {
             file_name.truncate(20);
         }
         status = format!(
-            "{} - {} lines{} {} {}",
+            "{} - {} lines{} \"{}\"",
             file_name,
             self.document.len(),
             modified_indicator,
-            time,
-            date
+            user_at_hostname,
         );
         let line_indicator = format!(
-            "{} | {}/{}",
+            "{} | {} | {} | {}/{} ",
+            time,
+            date,
             self.document.file_type(),
             self.cursor_position.y.saturating_add(1),
             self.document.len()
