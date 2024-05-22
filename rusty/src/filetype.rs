@@ -45,6 +45,15 @@ impl FileType {
             if (file_name.ends_with(".rs") && file_type.name == "Rust")
                 || ((file_name.ends_with(".js") || file_name.ends_with(".jsx"))
                     && file_type.name == "JavaScript")
+                || (file_name.ends_with(".py") && file_type.name == "Python")
+                || (file_name.ends_with(".cs") && file_type.name == "C#")
+                || (file_name.ends_with(".java") && file_type.name == "Java")
+                || (file_name.ends_with(".sh") && file_type.name == "Bash")
+                || (file_name.ends_with(".cpp") && file_type.name == "C++")
+                || (file_name.ends_with(".css") && file_type.name == "CSS")
+                || (file_name.ends_with(".html") && file_type.name == "HTML")
+                || ((file_name.ends_with(".ts") || file_name.ends_with(".tsx"))
+                    && file_type.name == "TypeScript")
             {
                 return file_type;
             }
